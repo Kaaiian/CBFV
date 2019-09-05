@@ -6,8 +6,10 @@ The file `example_code.py` can be used to quickly make predictions for any given
 
 ## making the composition-based feature vector
 The folder cbfv has the script `composition.py` and the folder "element_properties".
-
 This script uses some chemical parsing tools from matminer and then does numpy operations to vectorize composition at a rate of ~10,000 formulae per second. 
 
-## getting the features on their own.
-These can be extracted and saved to csv or simply used in the learning process. See example_code.py for how to access the featurized data
+## getting a full model for train and test.
+See `example_code.py` to featurize data and train models with the provided data
+
+## getting features for a given csv
+`featurize_file.py` takes in the path of a csv files you want featurized and saves the file "X.csv" into the "featurized_data" folder
