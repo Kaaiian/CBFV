@@ -5,7 +5,7 @@ Tool to quickly create a composition-based feature vector
 The file `example_code.py` can be used to quickly make predictions for any given property. Simply input the location of your desired train and test data. 
 
 ## Making the composition-based feature vector
-The folder cbfv has the script `composition.py` and the folder "element_properties".
+The folder cbfv has the script `composition.py` and the folder "element_properties"
 This script uses some chemical parsing tools from matminer and then does numpy operations to vectorize composition at a rate of ~10,000 formulae per second. 
 
 ## Getting a full model for train and test.
