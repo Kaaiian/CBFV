@@ -6,6 +6,7 @@ import tqdm
 import os
 dirpath = os.getcwd()
 
+
 def get_sym_dict(f, factor):
     sym_dict = collections.defaultdict(float)
     for m in re.finditer(r"([A-Z][a-z]*)\s*([-*\.\d]*)", f):
@@ -183,7 +184,8 @@ def generate_features(df, elem_prop='oliynyk', drop_duplicates=True):
                    'No', 'Lr', 'Rf', 'Db', 'Sg', 'Bh', 'Hs', 'Mt', 'Ds', 'Rg',
                    'Cn', 'Nh', 'Fl', 'Mc', 'Lv', 'Ts', 'Og']
 
-    elem_props = pd.read_csv(dirpath + '/cbfv/element_properties/'+elem_prop+'.csv')
+    elem_props = pd.read_csv(dirpath + '/cbfv/element_properties/'
+                             +elem_prop+'.csv')
     elem_props.index = elem_props['element'].values
     elem_props.drop(['element'], inplace=True, axis=1)
 
