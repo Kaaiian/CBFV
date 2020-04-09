@@ -65,7 +65,7 @@ val_file = 'data/ael_bulk_modulus_vrh/val.csv'
 model = Model(train_file, scale=True, save=True)
 
 # run grid search for better results
-Model.run_gridsearch()
+model.run_gridsearch()
 
 # fit the model to training data
 model.fit()

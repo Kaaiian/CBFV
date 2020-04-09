@@ -33,8 +33,8 @@ def parse_formula(formula):
     """
     # for Metallofullerene like "Y3N@C80"
     formula = formula.replace("@", "")
-    formula = formula.replace('(', '[')
-    formula = formula.replace(')', ']')
+    formula = formula.replace('[', '(')
+    formula = formula.replace(']', ')')
     m = re.search(r"\(([^\(\)]+)\)\s*([\.\d]*)", formula)
     if m:
         factor = 1
@@ -138,7 +138,8 @@ def _assign_features(matrices, elem_info, formulae, sum_feat=False):
     return feats, targets, formulas, skipped_formula
 
 
-def generate_features(df, elem_prop='oliynyk', drop_duplicates=True):
+def generate_features(df, elem_prop='oliynyk', drop_duplicates=True,
+                      extend_features=False):
     '''
     Parameters
     ----------
@@ -146,7 +147,7 @@ def generate_features(df, elem_prop='oliynyk', drop_duplicates=True):
         Two column dataframe of form:
             df.columns.values = array(['formula', 'target'], dtype=object)
 
-    elem_prop: str:
+    elem_prop: str
         valid element properties:
                 'oliynyk',
                 'jarvis',
@@ -154,6 +155,13 @@ def generate_features(df, elem_prop='oliynyk', drop_duplicates=True):
                 'magpie',
                 'mat2vec',
                 'onehot'
+
+    drop_duplicates: boolean
+        Decide to keep or drop duplicate compositions
+
+    append_featuers: boolean
+        Decide whether to use non ["formula", "target"[ columns as additional
+        features.
 
     Return
     ----------
@@ -208,6 +216,7 @@ def generate_features(df, elem_prop='oliynyk', drop_duplicates=True):
     formula_mat = []
     count_mat = []
     target_mat = []
+    extend = []
     print('\tprocessing input data ...'.title())
     for index in tqdm.tqdm(df.index.values):
         formula, target = df.loc[index, 'formula'], df.loc[index, 'target']
@@ -218,6 +227,13 @@ def generate_features(df, elem_prop='oliynyk', drop_duplicates=True):
         count_mat.append(l2)
         target_mat.append(target)
         formulae.append(formula)
+        if extend_features:
+            features = df.columns.values.tolist()
+            features.remove('formula')
+            features.remove('target')
+            extra_features = df.loc[index, features]
+            extend.append(extra_features)
+
     print('\tfeaturizing compositions ...'.title())
     matrices = [formula_mat, count_mat, elem_mat, target_mat]
     elem_info = [elem_symbols, elem_index, elem_missing]
@@ -230,6 +246,9 @@ def generate_features(df, elem_prop='oliynyk', drop_duplicates=True):
     X = pd.DataFrame(feats, columns=column_names, index=formulae)
     y = pd.Series(targets, index=formulae, name='target')
     formulae = pd.Series(formulae, index=formulae, name='formula')
+    if extend_features:
+        extended = pd.DataFrame(extend, columns=features, index=formulae)
+        X = pd.concat([X, extended], axis=1)
 
     # reset dataframe indices
     X.reset_index(drop=True, inplace=True)
