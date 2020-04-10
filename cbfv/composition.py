@@ -207,7 +207,7 @@ def generate_features(df, elem_prop='oliynyk', drop_duplicates=True,
 
     # make empty list where we will store the property value
     targets = []
-    # stro formula
+    # store formula
     formulae = []
     # add the values to the list using a for loop
 
@@ -216,14 +216,11 @@ def generate_features(df, elem_prop='oliynyk', drop_duplicates=True,
     formula_mat = []
     count_mat = []
     target_mat = []
-    extend = []
 
     if extend_features:
         features = df.columns.values.tolist()
-        features.remove('formula')
         features.remove('target')
         extra_features = df[features]
-        # extend.append(extra_features)
 
     for index in tqdm.tqdm(df.index.values, desc="Processing Input Data"):
         formula, target = df.loc[index, 'formula'], df.loc[index, 'target']
@@ -250,8 +247,9 @@ def generate_features(df, elem_prop='oliynyk', drop_duplicates=True,
     y = pd.Series(targets, index=formulae, name='target')
     formulae = pd.Series(formulae, index=formulae, name='formula')
     if extend_features:
-        # extended = pd.DataFrame(extra_features, columns=features, index=formulae)
-        X = pd.concat([X, extra_features], axis=1)
+        extended = pd.DataFrame(extra_features, columns=features)
+        extended = extended.set_index('formula', drop=True)
+        X = pd.concat([X, extended], axis=1)
 
     # reset dataframe indices
     X.reset_index(drop=True, inplace=True)
@@ -261,8 +259,8 @@ def generate_features(df, elem_prop='oliynyk', drop_duplicates=True,
     # drop elements that aren't included in the elmenetal properties list.
     # These will be returned as feature rows completely full of Nan values.
     X.dropna(inplace=True, how='all')
-    y = y.reindex([X.index])
-    formulae = formulae.reindex([X.index])
+    y = y.iloc[X.index]
+    formulae = formulae.iloc[X.index]
 
     # get the column names
     cols = X.columns.values
