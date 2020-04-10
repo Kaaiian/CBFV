@@ -218,6 +218,13 @@ def generate_features(df, elem_prop='oliynyk', drop_duplicates=True,
     target_mat = []
     extend = []
 
+    if extend_features:
+        features = df.columns.values.tolist()
+        features.remove('formula')
+        features.remove('target')
+        extra_features = df[features]
+        # extend.append(extra_features)
+
     for index in tqdm.tqdm(df.index.values, desc="Processing Input Data"):
         formula, target = df.loc[index, 'formula'], df.loc[index, 'target']
         if 'x' in formula:
@@ -227,12 +234,6 @@ def generate_features(df, elem_prop='oliynyk', drop_duplicates=True,
         count_mat.append(l2)
         target_mat.append(target)
         formulae.append(formula)
-        if extend_features:
-            features = df.columns.values.tolist()
-            features.remove('formula')
-            features.remove('target')
-            extra_features = df.loc[index, features]
-            extend.append(extra_features)
 
     print('\tfeaturizing compositions...'.title())
 
@@ -249,8 +250,8 @@ def generate_features(df, elem_prop='oliynyk', drop_duplicates=True,
     y = pd.Series(targets, index=formulae, name='target')
     formulae = pd.Series(formulae, index=formulae, name='formula')
     if extend_features:
-        extended = pd.DataFrame(extend, columns=features, index=formulae)
-        X = pd.concat([X, extended], axis=1)
+        # extended = pd.DataFrame(extra_features, columns=features, index=formulae)
+        X = pd.concat([X, extra_features], axis=1)
 
     # reset dataframe indices
     X.reset_index(drop=True, inplace=True)
@@ -260,8 +261,8 @@ def generate_features(df, elem_prop='oliynyk', drop_duplicates=True,
     # drop elements that aren't included in the elmenetal properties list.
     # These will be returned as feature rows completely full of Nan values.
     X.dropna(inplace=True, how='all')
-    y = y.loc[X.index]
-    formulae = formulae.loc[X.index]
+    y = y.reindex([X.index])
+    formulae = formulae.reindex([X.index])
 
     # get the column names
     cols = X.columns.values
