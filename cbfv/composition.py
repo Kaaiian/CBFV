@@ -105,7 +105,7 @@ def _assign_features(matrices, elem_info, formulae, sum_feat=False):
     formulas = []
     skipped_formula = []
 
-    for h in tqdm.tqdm(range(len(formulae))):
+    for h in tqdm.tqdm(range(len(formulae)), desc="Assigning Features..."):
         elem_list = formula_mat[h]
         target = target_mat[h]
         formula = formulae[h]
@@ -160,7 +160,7 @@ def generate_features(df, elem_prop='oliynyk', drop_duplicates=True,
         Decide to keep or drop duplicate compositions
 
     append_featuers: boolean
-        Decide whether to use non ["formula", "target"[ columns as additional
+        Decide whether to use non ["formula", "target"] columns as additional
         features.
 
     Return
@@ -217,8 +217,8 @@ def generate_features(df, elem_prop='oliynyk', drop_duplicates=True,
     count_mat = []
     target_mat = []
     extend = []
-    print('\tprocessing input data ...'.title())
-    for index in tqdm.tqdm(df.index.values):
+
+    for index in tqdm.tqdm(df.index.values, desc="Processing Input Data"):
         formula, target = df.loc[index, 'formula'], df.loc[index, 'target']
         if 'x' in formula:
             continue
@@ -234,13 +234,15 @@ def generate_features(df, elem_prop='oliynyk', drop_duplicates=True,
             extra_features = df.loc[index, features]
             extend.append(extra_features)
 
-    print('\tfeaturizing compositions ...'.title())
+    print('\tfeaturizing compositions...'.title())
+
     matrices = [formula_mat, count_mat, elem_mat, target_mat]
     elem_info = [elem_symbols, elem_index, elem_missing]
     feats, targets, formulae, skipped = _assign_features(matrices,
                                                          elem_info,
                                                          formulae)
-    print('\tcreating pandas objects ...'.title())
+
+    print('\tcreating pandas objects...'.title())
 
     # split feature vectors and targets as X and y
     X = pd.DataFrame(feats, columns=column_names, index=formulae)
