@@ -109,32 +109,31 @@ def _assign_features(matrices, elem_info, formulae, sum_feat=False):
         elem_list = formula_mat[h]
         target = target_mat[h]
         formula = formulae[h]
-
         comp_mat = np.zeros(shape=(len(elem_list), elem_mat.shape[-1]))
-        i = 0
-        for elem in elem_list:
+
+        for i, elem in enumerate(elem_list):
             if elem in elem_missing:
                 skipped_formula.append(formula)
-                i = i + 1
             else:
                 row = elem_index[elem_symbols.index(elem)]
                 comp_mat[i, :] = elem_mat[row]
-                i = i + 1
         if sum_feat:
             sum_feats.append(comp_mat.sum(axis=0))
+
         avg_feats.append(comp_mat.mean(axis=0))
         range_feats.append(np.ptp(comp_mat, axis=0))
         var_feats.append(comp_mat.var(axis=0))
         targets.append(target)
         formulas.append(formula)
-    if len(skipped_formula) < 0:
+
+    if len(skipped_formula) > 0:
         print('NOTE: Your data contain formula with exotic elements.',
               'These were skipped.')
     if sum_feat:
         feats = np.concatenate([sum_feats, avg_feats, range_feats, var_feats],
                                axis=1)
     else:
-        feats = np.concatenate([avg_feats, var_feats, range_feats], axis=1)
+        feats = np.concatenate([avg_feats, range_feats, var_feats], axis=1)
     return feats, targets, formulas, skipped_formula
 
 
@@ -257,7 +256,7 @@ def generate_features(df, elem_prop='oliynyk', drop_duplicates=True,
     formulae.reset_index(drop=True, inplace=True)
 
     # drop elements that aren't included in the elmenetal properties list.
-    # These will be returned as feature rows completely full of Nan values.
+    # These will be returned as feature rows completely full of NaN values.
     X.dropna(inplace=True, how='all')
     y = y.iloc[X.index]
     formulae = formulae.iloc[X.index]
