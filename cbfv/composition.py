@@ -144,8 +144,8 @@ def generate_features(df, elem_prop='oliynyk', drop_duplicates=True,
     Parameters
     ----------
     df: Pandas.DataFrame()
-        Two column dataframe of form:
-            df.columns.values = array(['formula', 'target'], dtype=object)
+        X column dataframe of form:
+            df.columns.values = array(['formula', 'target', 'extended1', 'extended2', ...], dtype=object)
 
     elem_prop: str
         valid element properties:
