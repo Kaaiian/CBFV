@@ -93,7 +93,7 @@ def _element_composition(formula):
     return elamt
 
 
-def _assign_features(matrices, elem_info, formulae, sum_feat=False):
+def _assign_features(matrices, elem_info, formulae, sum_feat=True):
     formula_mat, count_mat, elem_mat, target_mat = matrices
     elem_symbols, elem_index, elem_missing = elem_info
     if sum_feat:
@@ -159,7 +159,7 @@ def generate_features(df, elem_prop='oliynyk', drop_duplicates=True,
     drop_duplicates: boolean
         Decide to keep or drop duplicate compositions
 
-    append_featuers: boolean
+    extend_features: boolean
         Decide whether to use non ["formula", "target"] columns as additional
         features.
 
@@ -203,7 +203,8 @@ def generate_features(df, elem_prop='oliynyk', drop_duplicates=True,
 
     column_names = np.concatenate(['avg_'+elem_props.columns.values,
                                    'var_'+elem_props.columns.values,
-                                   'range_'+elem_props.columns.values])
+                                   'range_'+elem_props.columns.values,
+                                   'sum_'+elem_props.columns.values])
 
     # make empty list where we will store the property value
     targets = []
