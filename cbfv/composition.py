@@ -7,6 +7,11 @@ import os
 dirpath = os.getcwd()
 
 
+class CompositionError(Exception):
+    """Exception class for composition errors"""
+    pass
+
+
 def get_sym_dict(f, factor):
     sym_dict = collections.defaultdict(float)
     for m in re.finditer(r"([A-Z][a-z]*)\s*([-*\.\d]*)", f):
@@ -48,26 +53,6 @@ def parse_formula(formula):
     return get_sym_dict(formula, 1)
 
 
-class CompositionError(Exception):
-    """Exception class for composition errors"""
-    pass
-
-
-def _fractional_composition_L(formula):
-    elmap = parse_formula(formula)
-    elamt = {}
-    natoms = 0
-    for k, v in elmap.items():
-        if abs(v) >= 0.05:
-            elamt[k] = v
-            natoms += abs(v)
-    comp_frac = {}
-    for key in elamt:
-        comp_frac[key] = elamt[key] / natoms
-    atoms, counts = list(comp_frac.keys()), list(comp_frac.values())
-    return atoms, counts
-
-
 def _fractional_composition(formula):
     elmap = parse_formula(formula)
     elamt = {}
@@ -76,10 +61,15 @@ def _fractional_composition(formula):
         if abs(v) >= 0.05:
             elamt[k] = v
             natoms += abs(v)
-    comp_frac = {}
-    for key in elamt:
-        comp_frac[key] = elamt[key] / natoms
+    comp_frac = {key: elamt[key] / natoms for key in elamt}
     return comp_frac
+
+
+def _fractional_composition_L(formula):
+    comp_frac = _fractional_composition(formula)
+    atoms = list(comp_frac.keys())
+    counts = list(comp_frac.values())
+    return atoms, counts
 
 
 def _element_composition(formula):
@@ -96,6 +86,7 @@ def _element_composition(formula):
 def _assign_features(matrices, elem_info, formulae, sum_feat=False):
     formula_mat, count_mat, elem_mat, target_mat = matrices
     elem_symbols, elem_index, elem_missing = elem_info
+
     if sum_feat:
         sum_feats = []
     avg_feats = []
@@ -191,8 +182,10 @@ def generate_features(df, elem_prop='oliynyk', drop_duplicates=True,
                    'No', 'Lr', 'Rf', 'Db', 'Sg', 'Bh', 'Hs', 'Mt', 'Ds', 'Rg',
                    'Cn', 'Nh', 'Fl', 'Mc', 'Lv', 'Ts', 'Og']
 
-    elem_props = pd.read_csv(dirpath + '/cbfv/element_properties/'
-                             +elem_prop+'.csv')
+    elem_props = pd.read_csv(dirpath
+                             + '/cbfv/element_properties/'
+                             + elem_prop
+                             + '.csv')
     elem_props.index = elem_props['element'].values
     elem_props.drop(['element'], inplace=True, axis=1)
 
