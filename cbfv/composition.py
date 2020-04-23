@@ -131,13 +131,15 @@ def _assign_features(matrices, elem_info, formulae, sum_feat=False):
 def generate_features(df, elem_prop='oliynyk',
                       drop_duplicates=True,
                       extend_features=False,
-                      sum_feat=True):
+                      sum_feat=False):
     '''
     Parameters
     ----------
-    df: pandas.DataFrame()
-        Two column dataframe of form:
-            df.columns.values = array(['formula', 'target'], dtype=object)
+    df: Pandas.DataFrame()
+        X column dataframe of form:
+            df.columns.values = array(['formula', 'target',
+                                       'extended1', 'extended2', ...],
+                                      dtype=object)
 
     elem_prop: str
         valid element properties:
@@ -151,7 +153,7 @@ def generate_features(df, elem_prop='oliynyk',
     drop_duplicates: boolean
         Decide to keep or drop duplicate compositions
 
-    append_featuers: boolean
+    extend_features: boolean
         Decide whether to use non ["formula", "target"] columns as additional
         features.
 
