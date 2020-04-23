@@ -128,12 +128,14 @@ def _assign_features(matrices, elem_info, formulae, sum_feat=False):
     return feats, targets, formulas, skipped_formula
 
 
-def generate_features(df, elem_prop='oliynyk', drop_duplicates=True,
-                      extend_features=False):
+def generate_features(df, elem_prop='oliynyk',
+                      drop_duplicates=True,
+                      extend_features=False,
+                      sum_feat=True):
     '''
     Parameters
     ----------
-    df: Pandas.DataFrame()
+    df: pandas.DataFrame()
         Two column dataframe of form:
             df.columns.values = array(['formula', 'target'], dtype=object)
 
@@ -193,9 +195,14 @@ def generate_features(df, elem_prop='oliynyk', drop_duplicates=True,
     elem_index = np.arange(0, elem_props.shape[0], 1)
     elem_missing = list(set(all_symbols) - set(elem_symbols))
 
-    column_names = np.concatenate(['avg_'+elem_props.columns.values,
-                                   'var_'+elem_props.columns.values,
-                                   'range_'+elem_props.columns.values])
+    elem_props_columns = elem_props.columns.values
+
+    column_names = np.concatenate(['avg_' + elem_props_columns,
+                                   'var_' + elem_props_columns,
+                                   'range_' + elem_props_columns])
+    if sum_feat:
+        column_names = np.concatenate(['sum_' + elem_props_columns,
+                                       column_names])
 
     # make empty list where we will store the property value
     targets = []
@@ -230,7 +237,8 @@ def generate_features(df, elem_prop='oliynyk', drop_duplicates=True,
     elem_info = [elem_symbols, elem_index, elem_missing]
     feats, targets, formulae, skipped = _assign_features(matrices,
                                                          elem_info,
-                                                         formulae)
+                                                         formulae,
+                                                         sum_feat=sum_feat)
 
     print('\tcreating pandas objects...'.title())
 
