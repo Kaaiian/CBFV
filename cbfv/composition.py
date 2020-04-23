@@ -58,7 +58,7 @@ def _fractional_composition(formula):
     elamt = {}
     natoms = 0
     for k, v in elmap.items():
-        if abs(v) >= 0.05:
+        if abs(v) >= 0.0001:
             elamt[k] = v
             natoms += abs(v)
     comp_frac = {key: elamt[key] / natoms for key in elamt}
@@ -71,20 +71,25 @@ def _fractional_composition_L(formula):
     counts = list(comp_frac.values())
     return atoms, counts
 
+def _element_composition_L(formula):
+    comp_frac = _element_composition(formula)
+    atoms = list(comp_frac.keys())
+    counts = list(comp_frac.values())
+    return atoms, counts
 
 def _element_composition(formula):
     elmap = parse_formula(formula)
     elamt = {}
     natoms = 0
     for k, v in elmap.items():
-        if abs(v) >= 0.05:
+        if abs(v) >= 0.0001:
             elamt[k] = v
             natoms += abs(v)
     return elamt
 
 
 def _assign_features(matrices, elem_info, formulae, sum_feat=False):
-    formula_mat, count_mat, elem_mat, target_mat = matrices
+    formula_mat, count_mat, frac_mat, elem_mat, target_mat = matrices
     elem_symbols, elem_index, elem_missing = elem_info
 
     if sum_feat:
@@ -108,12 +113,20 @@ def _assign_features(matrices, elem_info, formulae, sum_feat=False):
             else:
                 row = elem_index[elem_symbols.index(elem)]
                 comp_mat[i, :] = elem_mat[row]
-        if sum_feat:
-            sum_feats.append(comp_mat.sum(axis=0))
 
-        avg_feats.append(comp_mat.mean(axis=0))
         range_feats.append(np.ptp(comp_mat, axis=0))
         var_feats.append(comp_mat.var(axis=0))
+
+        comp_frac_mat = comp_mat.T * frac_mat[h]
+        comp_frac_mat = comp_frac_mat.T
+        avg_feats.append(comp_frac_mat.sum(axis=0))
+
+        comp_sum_mat = comp_mat.T * count_mat[h]
+        comp_sum_mat = comp_sum_mat.T
+        if sum_feat:
+            # print(comp_mat.sum(axis=0))
+            sum_feats.append(comp_sum_mat.sum(axis=0))
+
         targets.append(target)
         formulas.append(formula)
 
@@ -216,6 +229,7 @@ def generate_features(df, elem_prop='oliynyk',
 
     formula_mat = []
     count_mat = []
+    frac_mat = []
     target_mat = []
 
     if extend_features:
@@ -227,15 +241,17 @@ def generate_features(df, elem_prop='oliynyk',
         formula, target = df.loc[index, 'formula'], df.loc[index, 'target']
         if 'x' in formula:
             continue
-        l1, l2 = _fractional_composition_L(formula)
+        l1, l2 = _element_composition_L(formula)
         formula_mat.append(l1)
         count_mat.append(l2)
+        _, l3 = _fractional_composition_L(formula)
+        frac_mat.append(l3)
         target_mat.append(target)
         formulae.append(formula)
 
     print('\tfeaturizing compositions...'.title())
 
-    matrices = [formula_mat, count_mat, elem_mat, target_mat]
+    matrices = [formula_mat, count_mat, frac_mat, elem_mat, target_mat]
     elem_info = [elem_symbols, elem_index, elem_missing]
     feats, targets, formulae, skipped = _assign_features(matrices,
                                                          elem_info,
