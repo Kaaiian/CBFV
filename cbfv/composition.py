@@ -118,7 +118,7 @@ def _assign_features(matrices, elem_info, formulae, sum_feat=False):
         formulas.append(formula)
 
     if len(skipped_formula) > 0:
-        print('NOTE: Your data contain formula with exotic elements.',
+        print('\nNOTE: Your data contains formula with exotic elements.',
               'These were skipped.')
     if sum_feat:
         feats = np.concatenate([sum_feats, avg_feats, range_feats, var_feats],
@@ -271,3 +271,7 @@ def generate_features(df, elem_prop='oliynyk',
     # fill the missing values in each column with the columns mean value
     X[cols] = X[cols].fillna(median_values.iloc[0])
     return X, y, formulae, skipped
+
+
+if __name__ == '__main__':
+    pass
