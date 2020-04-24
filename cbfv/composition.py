@@ -22,22 +22,29 @@ def get_sym_dict(f, factor):
         sym_dict[el] += amt * factor
         f = f.replace(m.group(), "", 1)
     if f.strip():
-        raise CompositionError("{} is an invalid formula!".format(f))
+        raise CompositionError(f'{f} is an invalid formula!')
     return sym_dict
 
 
 def parse_formula(formula):
-    """
-    Args:
-        formula (str): A string formula, e.g. Fe2O3, Li3Fe2(PO4)3
-    Returns:
-        Composition with that formula.
-    Notes:
+    '''
+    Parameters
+    ----------
+        formula: str
+            A string formula, e.g. Fe2O3, Li3Fe2(PO4)3.
+
+    Return
+    ----------
+        sym_dict: dict
+            A dictionary recording the composition of that formula.
+
+    Notes
+    ----------
         In the case of Metallofullerene formula (e.g. Y3N@C80),
         the @ mark will be dropped and passed to parser.
-    """
+    '''
     # for Metallofullerene like "Y3N@C80"
-    formula = formula.replace("@", "")
+    formula = formula.replace('@', '')
     formula = formula.replace('[', '(')
     formula = formula.replace(']', ')')
     m = re.search(r"\(([^\(\)]+)\)\s*([\.\d]*)", formula)
@@ -50,7 +57,8 @@ def parse_formula(formula):
                                 for el, amt in unit_sym_dict.items()])
         expanded_formula = formula.replace(m.group(), expanded_sym)
         return parse_formula(expanded_formula)
-    return get_sym_dict(formula, 1)
+    sym_dict = get_sym_dict(formula, 1)
+    return sym_dict
 
 
 def _fractional_composition(formula):
@@ -71,11 +79,6 @@ def _fractional_composition_L(formula):
     counts = list(comp_frac.values())
     return atoms, counts
 
-def _element_composition_L(formula):
-    comp_frac = _element_composition(formula)
-    atoms = list(comp_frac.keys())
-    counts = list(comp_frac.values())
-    return atoms, counts
 
 def _element_composition(formula):
     elmap = parse_formula(formula)
@@ -86,6 +89,13 @@ def _element_composition(formula):
             elamt[k] = v
             natoms += abs(v)
     return elamt
+
+
+def _element_composition_L(formula):
+    comp_frac = _element_composition(formula)
+    atoms = list(comp_frac.keys())
+    counts = list(comp_frac.values())
+    return atoms, counts
 
 
 def _assign_features(matrices, elem_info, formulae, sum_feat=False):
@@ -101,7 +111,7 @@ def _assign_features(matrices, elem_info, formulae, sum_feat=False):
     formulas = []
     skipped_formula = []
 
-    for h in tqdm.tqdm(range(len(formulae)), desc="Assigning Features..."):
+    for h in tqdm.tqdm(range(len(formulae)), desc='Assigning Features...'):
         elem_list = formula_mat[h]
         target = target_mat[h]
         formula = formulae[h]
@@ -124,7 +134,6 @@ def _assign_features(matrices, elem_info, formulae, sum_feat=False):
         comp_sum_mat = comp_mat.T * count_mat[h]
         comp_sum_mat = comp_sum_mat.T
         if sum_feat:
-            # print(comp_mat.sum(axis=0))
             sum_feats.append(comp_sum_mat.sum(axis=0))
 
         targets.append(target)
@@ -156,12 +165,12 @@ def generate_features(df, elem_prop='oliynyk',
 
     elem_prop: str
         valid element properties:
-                'oliynyk',
-                'jarvis',
-                'atom2vec',
-                'magpie',
-                'mat2vec',
-                'onehot'
+            'oliynyk',
+            'jarvis',
+            'atom2vec',
+            'magpie',
+            'mat2vec',
+            'onehot'
 
     drop_duplicates: boolean
         Decide to keep or drop duplicate compositions
@@ -180,11 +189,10 @@ def generate_features(df, elem_prop='oliynyk',
     formulae: pd.Series()
         Formula associated with X and y
     '''
-
     if drop_duplicates:
         if df['formula'].value_counts()[0] > 1:
             df.drop_duplicates('formula', inplace=True)
-            print('duplicate formula removed using default pandas function')
+            print('Duplicate formula(e) removed using default pandas function')
 
     all_symbols = ['H', 'He', 'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Ne', 'Na',
                    'Mg', 'Al', 'Si', 'P', 'S', 'Cl', 'Ar', 'K', 'Ca', 'Sc',
@@ -237,7 +245,7 @@ def generate_features(df, elem_prop='oliynyk',
         features.remove('target')
         extra_features = df[features]
 
-    for index in tqdm.tqdm(df.index.values, desc="Processing Input Data"):
+    for index in tqdm.tqdm(df.index.values, desc='Processing Input Data'):
         formula, target = df.loc[index, 'formula'], df.loc[index, 'target']
         if 'x' in formula:
             continue
