@@ -70,7 +70,7 @@ def _fractional_composition(formula):
     elamt = {}
     natoms = 0
     for k, v in elmap.items():
-        if abs(v) >= 0.0001:
+        if abs(v) >= 1e-6:
             elamt[k] = v
             natoms += abs(v)
     comp_frac = {key: elamt[key] / natoms for key in elamt}
@@ -89,7 +89,7 @@ def _element_composition(formula):
     elamt = {}
     natoms = 0
     for k, v in elmap.items():
-        if abs(v) >= 0.0001:
+        if abs(v) >= 1e-6:
             elamt[k] = v
             natoms += abs(v)
     return elamt
