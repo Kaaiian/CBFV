@@ -110,7 +110,11 @@ def _assign_features(matrices, elem_info, formulae, sum_feat=False):
         sum_feats = []
     avg_feats = []
     range_feats = []
-    var_feats = []
+    # var_feats = []
+    dev_feats = []
+    max_feats = []
+    min_feats = []
+    mode_feats = []
     targets = []
     formulas = []
     skipped_formula = []
@@ -120,20 +124,35 @@ def _assign_features(matrices, elem_info, formulae, sum_feat=False):
         target = target_mat[h]
         formula = formulae[h]
         comp_mat = np.zeros(shape=(len(elem_list), elem_mat.shape[-1]))
+        skipped = False
 
         for i, elem in enumerate(elem_list):
             if elem in elem_missing:
-                skipped_formula.append(formula)
+                skipped = True
             else:
                 row = elem_index[elem_symbols.index(elem)]
                 comp_mat[i, :] = elem_mat[row]
 
+        if skipped:
+            skipped_formula.append(formula)
+
         range_feats.append(np.ptp(comp_mat, axis=0))
-        var_feats.append(comp_mat.var(axis=0))
+        # var_feats.append(comp_mat.var(axis=0))
+        max_feats.append(comp_mat.max(axis=0))
+        min_feats.append(comp_mat.min(axis=0))
 
         comp_frac_mat = comp_mat.T * frac_mat[h]
         comp_frac_mat = comp_frac_mat.T
         avg_feats.append(comp_frac_mat.sum(axis=0))
+
+        dev = np.abs(comp_mat - comp_frac_mat.sum(axis=0))
+        dev = dev.T * frac_mat[h]
+        dev = dev.T.sum(axis=0)
+        dev_feats.append(dev)
+
+        prominant = np.isclose(frac_mat[h], max(frac_mat[h]))
+        mode = comp_mat[prominant].min(axis=0)
+        mode_feats.append(mode)
 
         comp_sum_mat = comp_mat.T * count_mat[h]
         comp_sum_mat = comp_sum_mat.T
@@ -147,17 +166,22 @@ def _assign_features(matrices, elem_info, formulae, sum_feat=False):
         print('\nNOTE: Your data contains formula with exotic elements.',
               'These were skipped.')
     if sum_feat:
-        feats = np.concatenate([sum_feats, avg_feats, range_feats, var_feats],
-                               axis=1)
+        conc_list = [sum_feats, avg_feats, dev_feats,
+                     range_feats, max_feats, min_feats, mode_feats]
+        feats = np.concatenate(conc_list, axis=1)
     else:
-        feats = np.concatenate([avg_feats, range_feats, var_feats], axis=1)
+        conc_list = [avg_feats, dev_feats,
+                     range_feats, max_feats, min_feats, mode_feats]
+        feats = np.concatenate(conc_list, axis=1)
+
     return feats, targets, formulas, skipped_formula
 
 
 def generate_features(df, elem_prop='oliynyk',
-                      drop_duplicates=True,
+                      drop_duplicates=False,
                       extend_features=False,
-                      sum_feat=False):
+                      sum_feat=False,
+                      mini=False):
     '''
     Parameters
     ----------
@@ -166,23 +190,19 @@ def generate_features(df, elem_prop='oliynyk',
             df.columns.values = array(['formula', 'target',
                                        'extended1', 'extended2', ...],
                                       dtype=object)
-
     elem_prop: str
         valid element properties:
             'oliynyk',
             'jarvis',
-            'atom2vec',
             'magpie',
             'mat2vec',
-            'onehot'
-
+            'onehot',
+            'random_200'
     drop_duplicates: boolean
         Decide to keep or drop duplicate compositions
-
     extend_features: boolean
         Decide whether to use non ["formula", "target"] columns as additional
         features.
-
     Return
     ----------
     X: pd.DataFrame()
@@ -211,10 +231,13 @@ def generate_features(df, elem_prop='oliynyk',
                    'No', 'Lr', 'Rf', 'Db', 'Sg', 'Bh', 'Hs', 'Mt', 'Ds', 'Rg',
                    'Cn', 'Nh', 'Fl', 'Mc', 'Lv', 'Ts', 'Og']
 
-    elem_props = pd.read_csv(dirpath
-                             + '/cbfv/element_properties/'
-                             + elem_prop
-                             + '.csv')
+    cbfv_path = (dirpath
+                + '/cbfv/element_properties/'
+                + elem_prop
+                + '.csv')
+
+    elem_props = pd.read_csv(cbfv_path)
+
     elem_props.index = elem_props['element'].values
     elem_props.drop(['element'], inplace=True, axis=1)
 
@@ -225,8 +248,11 @@ def generate_features(df, elem_prop='oliynyk',
     elem_props_columns = elem_props.columns.values
 
     column_names = np.concatenate(['avg_' + elem_props_columns,
-                                   'var_' + elem_props_columns,
-                                   'range_' + elem_props_columns])
+                                   'dev_' + elem_props_columns,
+                                   'range_' + elem_props_columns,
+                                   'max_' + elem_props_columns,
+                                   'min_' + elem_props_columns,
+                                   'mode_' + elem_props_columns])
     if sum_feat:
         column_names = np.concatenate(['sum_' + elem_props_columns,
                                        column_names])
@@ -298,6 +324,14 @@ def generate_features(df, elem_prop='oliynyk',
     median_values = X[cols].median()
     # fill the missing values in each column with the column's median value
     X[cols] = X[cols].fillna(median_values)
+
+    # Only return the avg/sum of element properties.
+
+    if mini:
+        np.random.seed(42)
+        booleans = np.random.rand(X.shape[-1]) <= 64/X.shape[-1]
+        X = X.iloc[:, booleans]
+
     return X, y, formulae, skipped
 
 
