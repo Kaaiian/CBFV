@@ -5,14 +5,6 @@ import pandas as pd
 from cbfv import composition as cmp
 
 
-# %% dummy tests
-def test_answer1():
-    assert True == True
-
-def test_answer2():
-    assert 1 == True
-
-
 # %%
 # test for presence of all element properties
 ELEM_PROPS = ['jarvis','magpie','mat2vec','oliynyk','onehot','random_200']
@@ -82,7 +74,7 @@ def test_drop_duplicates():
     df['formula'] = formulae
     df['target'] = range(len(formulae))
 
-    output = cmp.generate_features(df)
+    output = cmp.generate_features(df, drop_duplicates=False)
     out0, out1, out2, out3 = output
     assert out0.shape[0] == len(formulae)
 
@@ -150,6 +142,7 @@ def test_mini():
 
 # %%
 # test generation of features
+# NOTE: this test passes if no Python errors are thrown
 def test_all_elem_props():
     cols = ['formula', 'target', 'extra_feature1', 'extra_feature2']
     formulae = ['C', 'B', 'F', 'V', 'NaCl', 'Al2O3', 'SiO2']
@@ -163,3 +156,5 @@ def test_all_elem_props():
     for elem_prop in ELEM_PROPS:
         output = cmp.generate_features(df, elem_prop=elem_prop)
         out0, out1, out2, out3 = output
+
+
