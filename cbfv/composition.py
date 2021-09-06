@@ -14,7 +14,10 @@ class CompositionError(Exception):
 
 def get_sym_dict(f, factor):
     sym_dict = collections.defaultdict(float)
-    for m in re.finditer(r"([A-Z][a-z]*)\s*([-*\.\d]*)", f):
+    # compile regex for speedup
+    regex = r"([A-Z][a-z]*)\s*([-*\.\d]*)"
+    r = re.compile(regex)
+    for m in re.finditer(r, f):
         el = m.group(1)
         amt = 1
         if m.group(2).strip() != "":
@@ -32,12 +35,10 @@ def parse_formula(formula):
     ----------
         formula: str
             A string formula, e.g. Fe2O3, Li3Fe2(PO4)3.
-
     Return
     ----------
         sym_dict: dict
             A dictionary recording the composition of that formula.
-
     Notes
     ----------
         In the case of Metallofullerene formula (e.g. Y3N@C80),
@@ -47,7 +48,10 @@ def parse_formula(formula):
     formula = formula.replace('@', '')
     formula = formula.replace('[', '(')
     formula = formula.replace(']', ')')
-    m = re.search(r"\(([^\(\)]+)\)\s*([\.\d]*)", formula)
+    # compile regex for speedup
+    regex = r"\(([^\(\)]+)\)\s*([\.\d]*)"
+    r = re.compile(regex)
+    m = re.search(r, formula)
     if m:
         factor = 1
         if m.group(2) != "":
