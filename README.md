@@ -1,5 +1,14 @@
 # CBFV Package
-Tool to quickly create a composition-based feature vector
+Tool to quickly create a composition-based feature vectors from materials datafiles.
+
+# Installation
+The source code is currently hosted on GitHub at: https://github.com/kaaiian/CBFV
+
+Binary installers for the latest released version are available at the <a href="https://pypi.org/project/cbfv/">Python Package Index (PyPI)</a>
+```
+# PyPI
+pip install cbfv
+```
 
 ## Usage
 The file `example_code.py` can be used to quickly make predictions for any given property. Simply input the location of your desired train and test data.
