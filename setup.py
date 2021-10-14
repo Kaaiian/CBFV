@@ -2,12 +2,12 @@ from setuptools import setup
 
 setup(
     name='cbfv',
-    version='1.0.0',
+    version='1.0.1',
     description='Tool for quickly creating a composition-based feature vector',
     url='https://github.com/kaaiian/CBFV',
     author='Steven Kauwe, Andrew Falkowski, Anthony Wang',
     author_email='jkkauwe@gmail.com',
-    packages=['CBFV'],
+    packages=['cbfv'],
     install_requires=[
                       'numpy',
                       'pandas',
