@@ -7,18 +7,29 @@ The source code is currently hosted on GitHub at: https://github.com/kaaiian/CBF
 Binary installers for the latest released version are available at the <a href="https://pypi.org/project/cbfv/">Python Package Index (PyPI)</a>
 ```
 # PyPI
-pip install cbfv
+pip install CBFV
 ```
 
-## Usage
-The file `example_code.py` can be used to quickly make predictions for any given property. Simply input the location of your desired train and test data.
-
 ## Making the composition-based feature vector
-The folder cbfv has the script `composition.py` and the folder "element_properties"
-This script uses some chemical parsing tools from matminer and then does numpy operations to vectorize composition at a rate of ~10,000 formulae per second.
+The CBFV package assumes your data is stored in a pandas dataframe of the following structure:
 
-## Getting a full model for train and test.
-See `example_code.py` to featurize data and train models with the provided data
+formula | target
+---|---
+Tc1V1 | 248.539
+Cu1Dy1 | 66.8444
+Cd3N2 | 91.5034
 
-## Getting features for a given csv
-`featurize_file.py` takes in the path of a csv files you want featurized and saves the file "X.csv" into the "featurized_data" folder
+To featurize this data, the `generate_features` function can be called as follows:
+
+```
+from CBFV import composition
+X, y, formulae, skipped = composition.generate_features(df, elem_prop='oliynyk')
+```
+
+The featurization scheme can be adjusted using the `elem_prop` variable. The following featurization schemes are included within CBFV:
+- jarvis
+- magpie
+- mat2vec
+- oliynyk
+- onehot
+- random_200

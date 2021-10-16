@@ -1,13 +1,18 @@
 from setuptools import setup
-
+from pathlib import Path
+this_directory = Path(__file__).parent
+long_dscr = (this_directory / "README.md").read_text()
 setup(
     name='CBFV',
-    version='1.0.2',
+    version='1.0.1',
     description='Tool for quickly creating a composition-based feature vector',
+    long_description=long_dscr,
+    long_description_content_type='text/markdown',
     url='https://github.com/kaaiian/CBFV',
     author='Steven Kauwe, Andrew Falkowski, Anthony Wang',
     author_email='jkkauwe@gmail.com',
     packages=['CBFV'],
+    package_data={"CBFV": ["element_properties/*.csv"]},
     install_requires=[
                       'numpy',
                       'pandas',

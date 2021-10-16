@@ -4,8 +4,8 @@ import pandas as pd
 import numpy as np
 import tqdm
 import os
-dirpath = os.getcwd()
-
+import pkg_resources
+# dirpath = os.getcwd()
 
 class CompositionError(Exception):
     """Exception class for composition errors"""
@@ -231,10 +231,11 @@ def generate_features(df, elem_prop='oliynyk',
                    'No', 'Lr', 'Rf', 'Db', 'Sg', 'Bh', 'Hs', 'Mt', 'Ds', 'Rg',
                    'Cn', 'Nh', 'Fl', 'Mc', 'Lv', 'Ts', 'Og']
 
-    cbfv_path = (dirpath
-                + '/cbfv/element_properties/'
-                + elem_prop
-                + '.csv')
+    # cbfv_path = (dirpath
+    #             + '/CBFV/element_properties/'
+    #             + elem_prop
+    #             + '.csv')
+    cbfv_path = pkg_resources.resource_stream(__name__, f'element_properties/{elem_prop}.csv')
 
     elem_props = pd.read_csv(cbfv_path)
 
