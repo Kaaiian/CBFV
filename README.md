@@ -5,7 +5,7 @@ Tool to quickly create a composition-based feature vectors from materials datafi
 The source code is currently hosted on GitHub at: https://github.com/kaaiian/CBFV
 
 Binary installers for the latest released version are available at the <a href="https://pypi.org/project/cbfv/">Python Package Index (PyPI)</a>
-```
+```bash
 # PyPI
 pip install CBFV
 ```
@@ -21,7 +21,7 @@ Cd3N2 | 91.5034
 
 To featurize this data, the `generate_features` function can be called as follows:
 
-```
+```python
 from CBFV import composition
 X, y, formulae, skipped = composition.generate_features(df)
 ```
@@ -50,7 +50,7 @@ Tc1V1 | 248.539 | 373
 Tc1V1 | 66.8444 | 473
 Cd3N2 | 91.5034 | 273
 
-```
+```python
 from CBFV import composition
 X, y, formulae, skipped = composition.generate_features(df,
                                                         elem_prop='magpie',
