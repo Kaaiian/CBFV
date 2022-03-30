@@ -35,6 +35,7 @@ The featurization scheme can be adjusted by calling the the `elem_prop` paramete
 - oliynyk (default)
 - onehot
 - random_200
+- [skipatom_20201009_induced](https://github.com/lantunes/skipatom) (new addition)
 
 Duplicate formula handeling is controlled by the `drop_duplicates` parameter. It is set to `False` by default to preserve datapoints containing variation outside of their formula. For example, heat capacity measurements performed for the same material at different temperatures.
 
