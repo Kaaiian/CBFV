@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 import tqdm
 import os
-import pkg_resources
+from importlib.resources import files
 # dirpath = os.getcwd()
 
 class CompositionError(Exception):
@@ -235,9 +235,10 @@ def generate_features(df, elem_prop='oliynyk',
     #             + '/CBFV/element_properties/'
     #             + elem_prop
     #             + '.csv')
-    cbfv_path = pkg_resources.resource_stream(__name__, f'element_properties/{elem_prop}.csv')
-
-    elem_props = pd.read_csv(cbfv_path)
+    cbfv_files = files(__name__.split('.')[0])
+    cbfv_path = cbfv_files.joinpath('element_properties', f'{elem_prop}.csv')
+    with cbfv_path.open('r') as f:
+        elem_props = pd.read_csv(f)
 
     elem_props.index = elem_props['element'].values
     elem_props.drop(['element'], inplace=True, axis=1)
